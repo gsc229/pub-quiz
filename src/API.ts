@@ -19,10 +19,10 @@ export enum Difficulty {
 
 type DataReturn = {
   success: boolean,
-  data?: object
+  data?: QuestionState | object
 }
 
-export const fetchQuizQuestions = async(amount: number, difficulty: Difficulty):Promise<DataReturn> => {
+export const fetchQuizQuestions = async(amount: number, difficulty: Difficulty):Promise<{success: boolean; data: QuestionState[]}> => {
 
   const endpoint = `https://opentdb.com/api.php?amount=${amount}&type=multiple&difficulty=${difficulty}`
 
@@ -41,8 +41,8 @@ export const fetchQuizQuestions = async(amount: number, difficulty: Difficulty):
 
   }
 
-  return { success: false }
-  
+  return { success: false, data: [] }
+
 }
 
 
