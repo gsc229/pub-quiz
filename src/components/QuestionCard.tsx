@@ -1,10 +1,12 @@
-import React, { Component, ReactElement } from 'react'
+import React from 'react'
 // Types 
 import { AnswerObject } from '../App'
+// Styles 
+import { Wrapper, ButtonWrapper } from './QuestionCard.style'
 
 type Props = {
   question: string
-  answers: string[]
+  choices: string[]
   callback: (e:React.MouseEvent<HTMLButtonElement>) => void
   userAnswer: AnswerObject | undefined
   questionNr: number
@@ -12,23 +14,29 @@ type Props = {
 }
 
 
-const QuestionCard = ({ question, answers, callback, userAnswer, questionNr, totalQuestions }: Props) => (
-    <div>
-      <p className="number">
-        Question: { questionNr } / { totalQuestions }
-      </p>
-      <p dangerouslySetInnerHTML={{ __html: question }}/>
-      <div>
-        {answers.map(answer =>(
-          <div key={answer}>
-            <button disabled={userAnswer !== undefined} value={answer}  onClick={callback}>
-              <span dangerouslySetInnerHTML={{ __html: answer}} />
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
-)
+const QuestionCard = ({ question, choices, callback, userAnswer, questionNr, totalQuestions }: Props) => {
+
+      return(
+      <Wrapper>
+        <p className="number">
+          Question: { questionNr } / { totalQuestions }
+        </p>
+        <p dangerouslySetInnerHTML={{ __html: question }}/>
+        <div>
+          {choices.map(choice =>(
+            <ButtonWrapper 
+            correct={ userAnswer?.correctAnswer === choice}
+            userClicked={ choice === userAnswer?.answer }
+            key={choice}>
+              <button disabled={userAnswer !== undefined} value={choice}  onClick={callback}>
+                <span dangerouslySetInnerHTML={{ __html: choice}} />
+              </button>
+            </ButtonWrapper>
+          ))}
+        </div>
+      </Wrapper>
+      )
+}
 
 
 export default QuestionCard
