@@ -2,7 +2,6 @@ import {useState, useEffect} from 'react';
 // Components
 import GameSetup from './components/GameSetup';
 import Game from './components/Game';
-import Container from 'react-bootstrap/Container'
 // Types
 import { fetchSessionToken, fetchCategories, CategoryObject }  from './API'
 // Styles
@@ -20,42 +19,28 @@ const App = () => {
 
   const queryString = `https://opentdb.com/api.php?token=${token}&amount=${totalQuestions ? totalQuestions : ""}&type=multiple&difficulty=${difficulty ? difficulty : ""}&category=${category.id ? category.id : ""}`
 
-  console.log({categories, queryString})
-
   useEffect(() => {
-    if(!token){
-
-      const lsToken:string | null = localStorage.getItem('token')
-      // Check for token in local storage first
-      if(lsToken){
-        setToken(lsToken)
-      } else{
-        
-        // Call getNew Token if no token in local storage
-        const getNewToken = async() => {
-          const newToken = await fetchSessionToken()
-          setToken(newToken.data?.token)
-        }
-
-        getNewToken()
-
-      }
-
+      
+    // Call getNew Token if no token in local storage
+    const getNewToken = async() => {
+      const newToken = await fetchSessionToken()
+      setToken(newToken.data?.token)
     }
+
+    getNewToken()
+
+    
 
     const getCategories = async() => {
       let lsCategories = JSON.parse(localStorage.getItem('trivia_categories') || "[]" )
-      console.log({lsCategories})
+      
       if(lsCategories.length > 0){
         return setCategories(lsCategories)
       } else{
-
         const response = await fetchCategories()
-
         if(response.success){
           setCategories(response.data?.trivia_categories || [])
         }
-
       }
     }
 
@@ -94,6 +79,7 @@ const App = () => {
         queryString={queryString}
         totalQuestions={totalQuestions}
         setGameNumber={setGameNumber}
+        gameNumber={gameNumber}
         setShowGameSetup={setShowGameSetup}
         />}
       </Wrapper>

@@ -18,9 +18,10 @@ type Props = {
   setShowGameSetup: React.Dispatch<React.SetStateAction<boolean>>
   queryString: string
   totalQuestions:number
+  gameNumber:number
 }
 
-const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions }:Props ) => {
+const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions, gameNumber }:Props ) => {
   
   const [loading, setLoading] = useState<boolean>(false);
   const [questions, setQuestions] = useState<QuestionState[] | []>([]);
@@ -29,16 +30,15 @@ const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions }:
   const [gameOver, setGameOver] = useState<boolean>(true);
   const [score, setScore] = useState<number>(0);
 
-  console.log({ gameOver, questions , })
   const startTrivia = async () => {
     
     setLoading(true)
     setGameOver(false)
     
-    const newQuestions = await fetchQuizQuestions(queryString)
+    const data = await fetchQuizQuestions(queryString)
 
-    if(newQuestions.success){
-      setQuestions(newQuestions.data)
+    if(data.success){
+      setQuestions(data.data)
     } else {
       setQuestions([])
     }
@@ -62,9 +62,7 @@ const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions }:
         correct,
         correctAnswer: questions[number].correct_answer
       }
-
       setUserAnswers(prev => [...prev, answerObject])
-
     }
 
   }
@@ -74,7 +72,7 @@ const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions }:
     const nextQuestion = number + 1
 
     if(nextQuestion === totalQuestions) {
-      setGameNumber(prev => prev + 1)
+      setGameNumber(gameNumber + 1)
       return setGameOver(true)
     } 
 

@@ -1,4 +1,3 @@
-import { Resolver } from 'dns'
 import { shuffleArray } from './utils'
 
 export type Question = {
@@ -18,12 +17,17 @@ export enum Difficulty {
   HARD = "hard"
 }
 
-
-
+/* FETCH QUESTIONS */
 export const fetchQuizQuestions = async(queryString:string):Promise<{success: boolean; data: QuestionState[]}> => {
   console.log({queryString})
   const data = await (await fetch(queryString)).json()
   console.log({data})
+
+  if(data.response_code === 3 || data.response_code === 4){
+    // refresh the token
+  }
+
+
   if (data){
 
     const shuffledData = data.results.map((question: Question) => (
@@ -42,7 +46,7 @@ export const fetchQuizQuestions = async(queryString:string):Promise<{success: bo
 
 }
 
-
+/* FETCH TOKEN */
 export const fetchSessionToken = async():Promise<{ success:boolean, data?:{ response_code: number, response_message: string, token: string } }> => {
 
   const endpoint = 'https://opentdb.com/api_token.php?command=request'
@@ -62,6 +66,8 @@ export type CategoryObject = {
   name: string
 }
 
+
+/* FETCH CATEGORIES */
 export const fetchCategories = async(): Promise<{ success:boolean, data?:{ trivia_categories:CategoryObject[] }}> => {
 
   const endpoint = 'https://opentdb.com/api_category.php?command=request'
