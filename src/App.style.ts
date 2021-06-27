@@ -22,13 +22,17 @@ export const GlobalStyle = createGlobalStyle`
   }
 `
 
+
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-
+  background-color: rgba(0,0,0, .25);
+  height: 100%;
   > p {
     color: #fff;
+    padding: 0;
+    margin: 0;
   }
 
   .score{
@@ -53,19 +57,38 @@ export const Wrapper = styled.div`
     padding: 10px;
   }
 
-  .start, .next {
+  .info-list{
+    width: 100%;
+    max-width: 500px;
+    list-style: none;
+    li{
+      margin:0;
+    }
+    h3{
+      color: white;
+      margin: 0;
+    }  
+  }
+
+  
+
+  .start, .next, .change-settings-btn {
     cursor: pointer;
-    background: linear-gradient(180deg, #fff, #ffcc91);
-    border: 2px solid #d38558;
     box-shadow: 0px 5px 10px rgba(0,0,0, .25);
     border-radius: 10px;
     height: 40px;
     margin: 20px 0;
     padding: 0 40px;
+    max-width: 400px;
   } 
 
-  .start{
-    max-width: 400px;
+  .start, .next{
+    background: linear-gradient(180deg, #fff, #ffcc91);
+    border: 2px solid #d38558;
+  }
+
+  .change-settings-btn{
+    margin-left: 10px;
   }
 
 `
