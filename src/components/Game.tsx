@@ -22,11 +22,12 @@ type Props = {
 }
 
 const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions, gameNumber }:Props ) => {
-  
+  console.log({totalQuestions, gameNumber})
   const [loading, setLoading] = useState<boolean>(false);
   const [questions, setQuestions] = useState<QuestionState[] | []>([]);
   const [number, setNumber] = useState<number>(0)
   const [userAnswers, setUserAnswers] = useState<AnswerObject[]>([]);
+  const [pendingAnser, setPendingAnswer] = useState<AnswerObject>()
   const [gameOver, setGameOver] = useState<boolean>(true);
   const [score, setScore] = useState<number>(0);
 
@@ -42,10 +43,6 @@ const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions, g
     } else {
       setQuestions([])
     }
-    
-    setScore(0)
-    setUserAnswers([])
-    setNumber(0)
     setLoading(false)
 
   }
@@ -70,9 +67,12 @@ const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions, g
   const nextQuestion = () => {
 
     const nextQuestion = number + 1
-
+    console.log({nextQuestion, number, totalQuestions})
     if(nextQuestion === totalQuestions) {
       setGameNumber(gameNumber + 1)
+      setScore(0)
+      setUserAnswers([])
+      setNumber(0)
       return setGameOver(true)
     } 
 
@@ -86,12 +86,12 @@ const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions, g
 
   return (
     <div className='game-container'>
-      {(gameOver || userAnswers.length === totalQuestions) &&
+      {(gameOver && number === 0) &&
       <div className='start-edit-btns'>
         <button 
         className="start" 
         onClick={startTrivia}>
-          Start
+          { gameNumber > 1 ? "Start Next Game" : "Start" }
         </button>
         <button 
         onClick={handleChangeSettings}
@@ -99,7 +99,7 @@ const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions, g
           Change Settings
         </button>
       </div>}
-      {!gameOver && <p className="score">Score: {score}</p>}
+      {!gameOver && !loading && <p className="score">Score: {score}</p>}
       {loading && <p className="loading">Loading Questions...</p>}
       {!loading && !gameOver && questions.length > 0 && (
       <QuestionCard 
@@ -111,11 +111,12 @@ const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions, g
       callback={checkAnswer}
       />
       )}
-      {!gameOver && !loading && userAnswers.length !== number && number !== totalQuestions - 1 && (
-      <button 
-      className="next" 
+      {!gameOver && number !== totalQuestions  && (
+      <button
+      disabled={userAnswers.length - 1 !== number}
+      className="next"
       onClick={nextQuestion}>
-        Next Question
+        {userAnswers.length + 1 === totalQuestions  ? "Continue to Next Game" : "Next Question"}
       </button>)}
     </div>
   );

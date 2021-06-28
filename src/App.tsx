@@ -19,17 +19,46 @@ const App = () => {
 
   const queryString = `https://opentdb.com/api.php?token=${token}&amount=${totalQuestions ? totalQuestions : ""}&type=multiple&difficulty=${difficulty ? difficulty : ""}&category=${category.id ? category.id : ""}`
 
-  useEffect(() => {
-      
-    // Call getNew Token if no token in local storage
-    const getNewToken = async() => {
-      const newToken = await fetchSessionToken()
-      setToken(newToken.data?.token)
+  
+  const getNewToken = async() => {
+    const newToken = await fetchSessionToken()
+    console.log({newToken})
+    setToken(newToken.data?.token)
+  }
+
+  const checkGoodToken = async(token:string) => {
+
+    const testResult = await(await fetch(`https://opentdb.com/api.php?amount=1&token=${token}`)).json()
+
+    if(testResult.response_code === 3 || testResult.response_code === 4){
+      return false
     }
+    return true
 
-    getNewToken()
+  } 
 
-    
+  
+  useEffect(() => {
+
+    const lsToken:string | null = localStorage.getItem('token')
+    // Check for token in local storage first and if it's fresh:
+    if(lsToken){
+      checkGoodToken(lsToken)
+      .then(tokenIsGood => {
+        console.log({tokenIsGood})
+        if(tokenIsGood){
+          setToken(lsToken)
+        } else {
+          getNewToken()
+        }
+      })
+
+      
+    } else{
+      // Call getNew Token if no token in local storage
+      getNewToken()
+
+    }
 
     const getCategories = async() => {
       let lsCategories = JSON.parse(localStorage.getItem('trivia_categories') || "[]" )
@@ -47,8 +76,6 @@ const App = () => {
     if(categories.length === 0) getCategories()
 
   }, [])
-  
-
 
   return (
     <>
