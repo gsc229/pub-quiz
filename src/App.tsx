@@ -1,103 +1,115 @@
-import React, {useState} from 'react';
-import { fetchQuizQuestions } from './API'
+import {useState, useEffect} from 'react';
 // Components
-import QuestionCard from './components/QuestionCard';
+import GameSetup from './components/GameSetup';
+import Game from './components/Game';
 // Types
-import { Difficulty, QuestionState } from './API'
+import { fetchSessionToken, fetchCategories, CategoryObject }  from './API'
 // Styles
 import { GlobalStyle, Wrapper } from './App.style'
 
-
-export type AnswerObject = {
-  question: string
-  answer: string
-  correct: boolean
-  correctAnswer: string
-}
-
 const App = () => {
 
-  const [loading, setLoading] = useState(false);
-  const [questions, setQuestions] = useState<QuestionState[]>([]);
-  const [number, setNumber] = useState(0)
-  const [userAnswers, setUserAnswers] = useState<AnswerObject[]>([]);
-  const [score, setScore] = useState(0);
-  const [gameOver, setGameOver] = useState(true);
-  const TOTAL_QUESTIONS = 10
+  const [token, setToken] = useState<string | undefined>("")
+  const [showGameSetup, setShowGameSetup] = useState<boolean>(true)
+  const [gameNumber, setGameNumber] = useState<number>(1)
+  const [categories, setCategories] = useState([] as CategoryObject[])
+  const [category, setCategory] = useState({} as CategoryObject)
+  const [difficulty, setDifficulty] = useState<string>("Various")
+  const [totalQuestions, setTotalQuestions] = useState<number>(10)
 
+  const queryString = `https://opentdb.com/api.php?token=${token}&amount=${totalQuestions ? totalQuestions : ""}&type=multiple&difficulty=${difficulty ? difficulty : ""}&category=${category.id ? category.id : ""}`
 
-  const startTrivia = async () => {
-    
-    setLoading(true)
-    setGameOver(false)
-    
-    const newQuestions = await fetchQuizQuestions(TOTAL_QUESTIONS, Difficulty.EASY)
-
-    setQuestions(newQuestions)
-    setScore(0)
-    setUserAnswers([])
-    setNumber(0)
-    setLoading(false)
-
+  
+  const getNewToken = async() => {
+    const newToken = await fetchSessionToken()
+    console.log({newToken})
+    setToken(newToken.data?.token)
   }
 
-  const checkAnswer = (e:React.MouseEvent<HTMLButtonElement>) => {
-    if(!gameOver){
-      const answer = e.currentTarget.value
-      const correct = answer === questions[number].correct_answer
-      if(correct) setScore(prev => prev += 1)
+  const checkGoodToken = async(token:string) => {
 
-      const answerObject = {
-        question: questions[number].question,
-        answer,
-        correct,
-        correctAnswer: questions[number].correct_answer
-      }
+    const testResult = await(await fetch(`https://opentdb.com/api.php?amount=1&token=${token}`)).json()
 
-      setUserAnswers(prev => [...prev, answerObject])
+    if(testResult.response_code === 3 || testResult.response_code === 4){
+      return false
+    }
+    return true
+
+  } 
+
+  
+  useEffect(() => {
+
+    const lsToken:string | null = localStorage.getItem('token')
+    // Check for token in local storage first and if it's fresh:
+    if(lsToken){
+      checkGoodToken(lsToken)
+      .then(tokenIsGood => {
+        console.log({tokenIsGood})
+        if(tokenIsGood){
+          setToken(lsToken)
+        } else {
+          getNewToken()
+        }
+      })
+
+      
+    } else{
+      // Call getNew Token if no token in local storage
+      getNewToken()
 
     }
 
-  }
+    const getCategories = async() => {
+      let lsCategories = JSON.parse(localStorage.getItem('trivia_categories') || "[]" )
+      
+      if(lsCategories.length > 0){
+        return setCategories(lsCategories)
+      } else{
+        const response = await fetchCategories()
+        if(response.success){
+          setCategories(response.data?.trivia_categories || [])
+        }
+      }
+    }
 
-  const nextQuestion = () => {
+    if(categories.length === 0) getCategories()
 
-    const nextQuestion = number + 1
-
-    if(nextQuestion === TOTAL_QUESTIONS) {
-      return setGameOver(true)
-    } 
-
-    setNumber(nextQuestion)
-  }
-
+  }, [])
 
   return (
     <>
       <GlobalStyle />
-        <Wrapper>
+      <Wrapper>
         <h1>Pub Quiz</h1>
-        {(gameOver || userAnswers.length === TOTAL_QUESTIONS) &&
-        <button className="start" onClick={startTrivia}>
-          Start
-        </button>}
-        {!gameOver && <p className="score">Score: {score}</p>}
-        {loading && <p className="loading">Loading Questions...</p>}
-        {!loading && !gameOver && (
-        <QuestionCard 
-        questionNr={number + 1} 
-        totalQuestions={TOTAL_QUESTIONS}
-        question={questions[number].question}
-        choices={questions[number].choices}
-        userAnswer={userAnswers[number]}
-        callback={checkAnswer}
-        />
-        )}
-        {!gameOver && !loading && userAnswers.length !== number && number !== TOTAL_QUESTIONS - 1 && (
-        <button className="next" onClick={nextQuestion}>
-          Next Question
-        </button>)}
-        </Wrapper>
+        {!showGameSetup && 
+        <ul className='info-list'>
+          <li><h3>Game:&nbsp;&nbsp; <span>{gameNumber}</span></h3></li>
+          <li><h3>Category:&nbsp;&nbsp; <span>{  category.name ? category.name : 'Various' }</span></h3></li>
+          <li><h3>Difficulty:&nbsp;&nbsp; <span>{ difficulty ? difficulty.toUpperCase() : 'Various' }</span></h3></li>
+          <li><h3>No. of Q's:&nbsp;&nbsp; <span>{ totalQuestions }</span></h3></li>
+        </ul>}
+        {showGameSetup && categories.length > 0 &&
+        <GameSetup
+        categories={categories}
+        category={category}
+        difficulty={difficulty}
+        totalQuestions={totalQuestions}
+        setShowGameSetup={setShowGameSetup}
+        setCategory={setCategory}
+        setGameNumber={setGameNumber}
+        setDifficulty={setDifficulty}
+        setTotalQuestions={setTotalQuestions}
+        />}
+        {!showGameSetup &&
+        <Game
+        queryString={queryString}
+        totalQuestions={totalQuestions}
+        setGameNumber={setGameNumber}
+        gameNumber={gameNumber}
+        setShowGameSetup={setShowGameSetup}
+        />}
+      </Wrapper>
     </>
   );
 }

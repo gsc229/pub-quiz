@@ -1,6 +1,6 @@
 import React from 'react'
 // Types 
-import { AnswerObject } from '../App'
+import { AnswerObject } from '../components/Game'
 // Styles 
 import { Wrapper, ButtonWrapper } from './QuestionCard.style'
 
