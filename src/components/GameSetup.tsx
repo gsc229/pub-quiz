@@ -1,7 +1,6 @@
-import React from 'react'
-import { useGameContext } from '../store/store'
+import { useGameContext, useSessionContext } from '../store/store'
 // Types
-import { CategoryObject }  from '../API'
+import { CategoryObject, fetchQuizQuestions }  from '../API'
 // Styles 
 import { Wrapper } from './GameSetup.style'
 import { ButtonWrapper } from './QuestionCard.style'
@@ -11,23 +10,23 @@ type Props = {
 }
 
 const GameSetup = ({ 
-  categories,
-
+  categories
 }:Props) => {
 
-  const { gameState, setGameSettings, startGame } = useGameContext()
+  const { sessionState  } = useSessionContext()
+  const { gameState, setGameSettings, startGame, getQueryString } = useGameContext()
   const { category, difficulty, num_questions } = gameState.settings
 
-  const selectDifficulty = (e:React.ChangeEvent<HTMLSelectElement>) => {
-    
-  }
 
   const handleContinue = async() => {
-    
-  }
+    const queryString = getQueryString(sessionState.token) 
+    const fetchNewQuestions = await fetchQuizQuestions(queryString)
 
-  const handleCategorySelect = (e:React.ChangeEvent<HTMLSelectElement>) => {
-
+    if(fetchNewQuestions.success){
+      startGame(fetchNewQuestions.data)
+    } else {
+      alert("Something went wrong :(")
+    }
   }
   
   return (

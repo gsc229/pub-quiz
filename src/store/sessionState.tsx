@@ -5,7 +5,7 @@ export interface GameSession {
   games_played:number
   total_questions:number
   total_correct:number
-  token:string | null
+  token:string | undefined
   saved_games: Game[]
 }
 
@@ -48,8 +48,14 @@ export const useSessionState = (initial:GameSession) => {
     addGame(game:Game){
       sessionStateSet(addGame(sessionState, game))
     },
-    setToken(token:string){
+    setToken(token:string | undefined){
       sessionStateSet({...sessionState, token})
     }
   }
 }
+
+
+type UseGameStateType = ReturnType<typeof useSessionState>
+
+// Game Context
+export const SessionContext = React.createContext<UseGameStateType | null>(null)

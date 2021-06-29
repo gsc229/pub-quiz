@@ -3,13 +3,15 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { GameProvider } from './store/store'
+import { SessionProvider, GameProvider } from './store/store'
 
 ReactDOM.render(
   <React.StrictMode>
-    <GameProvider>
-      <App />
-    </GameProvider>
+      <SessionProvider>
+        <GameProvider>
+          <App />
+        </GameProvider>
+      </SessionProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

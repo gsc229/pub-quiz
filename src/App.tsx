@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react';
-import { useGameContext } from './store/store'
+import { useGameContext, useSessionContext } from './store/store'
 // Components
 import GameSetup from './components/GameSetup';
 import Game from './components/Game';
@@ -10,9 +10,11 @@ import { GlobalStyle, Wrapper } from './App.style'
 
 const App = () => {
 
+  const { sessionState, setToken } = useSessionContext()
+  const { games_played, total_correct, total_questions, token } = sessionState
   const { gameState, getQueryString } = useGameContext()
 
-  const [token, setToken] = useState<string | undefined>("")
+  
   const [showGameSetup, setShowGameSetup] = useState<boolean>(true)
   const [gameNumber, setGameNumber] = useState<number>(1)
   const [categories, setCategories] = useState([] as CategoryObject[])
@@ -82,6 +84,7 @@ const App = () => {
   return (
     <>
       <GlobalStyle />
+      <pre style={{color: 'white'}}>{JSON.stringify({sessionState}, null, 2)}</pre>
       <pre style={{color: 'white'}}>{JSON.stringify({gameState}, null, 2)}</pre>
       <Wrapper>
         <h1>Pub Quiz</h1>
