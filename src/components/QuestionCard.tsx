@@ -32,8 +32,6 @@ const QuestionCard = () => {
 
     if(next_num === questions.length){
       clearGameResults()
-      setGameOver(true)
-      setSetupMode(true)
     } else {
       setNextQuestionNumber()
     }

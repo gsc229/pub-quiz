@@ -93,7 +93,9 @@ const clearGameResults = (gameState:Game) => {
     score: 0,
     questionNumber: 0,
     questions: [],
-    userAnswers: []
+    userAnswers: [],
+    settingUp: true,
+    gameOver: true
   }
 }
 
@@ -140,6 +142,7 @@ export const useGameState = (initial:Game) => {
       return getQueryString(gameState, token)
     },
     setSetupMode(bool:boolean){
+      console.log("setSetupMode: ", {bool})
       gameStateSet({...gameState, settingUp: bool})
     },
     startGame(questionSet:MCQuestion[]){
@@ -167,8 +170,8 @@ export const useGameState = (initial:Game) => {
       gameStateSet({ ...gameState, questions: newQuestions })
     },
     setGameOver(bool:boolean){
-      console.log({bool})
-      gameStateSet({...gameState, gameOver: bool})
+      console.log("setGameOver: ",{bool})
+      return gameStateSet({...gameState, gameOver: bool})
     }
   }
 }
