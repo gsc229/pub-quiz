@@ -1,17 +1,38 @@
 import { MCQuestion } from './store/gameState'
-
+import { shuffleArray } from './utils'
 
 export const baseUrl = 'https://opentdb.com'
 export const baseQueryStr = 'https://opentdb.com/api.php?'
 
+type DirtyQuestion = {
+  category:string
+  type:string
+  difficulty:string
+  question:string
+  correct_answer:string
+  incorrect_answers?:string[]
+  choices:string[]
+}
+
 /* FETCH QUESTIONS */
 export const fetchQuizQuestions = async(queryString:string):Promise<{success: boolean; data: MCQuestion[]}> => {
   console.log({queryString})
-  const data = await (await fetch(queryString)).json()
-  console.log({data})
+  const response = await (await fetch(queryString)).json()
+  console.log({response})
 
-  if (data.response_code === 0){
-    return { success: true, data: data.results }
+  if (response.response_code === 0){
+
+    const dirtyData = response.results
+    console.log({dirtyData})
+    const cleanedResults = dirtyData.map((question:DirtyQuestion) => {
+      question.incorrect_answers?.push(question.correct_answer)
+      question.choices = shuffleArray(question.incorrect_answers)
+      delete question.incorrect_answers
+      return question
+    })
+
+
+    return { success: true, data: cleanedResults }
   }
 
   return { success: false, data: [] }

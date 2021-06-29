@@ -14,7 +14,7 @@ const GameSetup = ({
 }:Props) => {
 
   
-  const { gameState, setGameSettings, setSetupMode, setLoading } = useGameContext()
+  const { gameState, setGameSettings, setSetupMode } = useGameContext()
   const { category, difficulty, num_questions } = gameState.settings
   
   return (
@@ -66,6 +66,7 @@ const GameSetup = ({
           </select>
         </div>
         <ButtonWrapper
+        selected={false}
         correct={true}/* true for styles only */
         userClicked={true}
         >

@@ -11,11 +11,9 @@ import { GlobalStyle, Wrapper } from './App.style'
 const App = () => {
 
   const { sessionState, setToken } = useSessionContext()
-  const { games_played, total_correct, total_questions, token } = sessionState
-  const { gameState, getQueryString } = useGameContext()
+  const { games_played } = sessionState
+  const { gameState } = useGameContext()
   const { settingUp, settings } = gameState
-
-  const queryString = getQueryString(token)
 
   // Local
   const [categories, setCategories] = useState<CategoryObject[]>([])
@@ -33,12 +31,10 @@ const App = () => {
       return false
     }
     return true
-
   } 
 
   
   useEffect(() => {
-
     const lsToken:string | null = localStorage.getItem('token')
     // Check for token in local storage first and if it's fresh:
     if(lsToken){
@@ -78,7 +74,7 @@ const App = () => {
   return (
     <>
       <GlobalStyle />
-      <pre style={{color: 'white'}}>{JSON.stringify({sessionState}, null, 2)}</pre>
+      {/* <pre style={{color: 'white'}}>{JSON.stringify({sessionState}, null, 2)}</pre> */}
       <pre style={{color: 'white'}}>{JSON.stringify({gameState}, null, 2)}</pre>
       <Wrapper>
         <h1>Pub Quiz</h1>

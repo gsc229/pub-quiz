@@ -27,14 +27,15 @@ const initialGameState = {
   loading: false,
   gameError: null,
   currentQuestion: null,
-  questionNumber: 1,
+  questionNumber: 0,
   userAnswers: [],
   questions: [],
   score: 0,
   settings: {
     difficulty: "",
     num_questions: 10,
-    category: null
+    category: null,
+    type: 'multiple'
   }
 }
 

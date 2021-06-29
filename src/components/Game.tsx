@@ -1,37 +1,32 @@
-import { useEffect, useState } from 'react'
 import { fetchQuizQuestions } from '../API'
 // Context
 import { useGameContext, useSessionContext } from '../store/store'
 // Components
 import QuestionCard from './QuestionCard';
 
-
-
 const Game = () => {
 
   const { sessionState } = useSessionContext()
-  const { gameState, setLoading, startGame, setSetupMode, setNextQuestionNumber, getQueryString, submitAnswer } = useGameContext()
-  const { loading, questions, gameOver, questionNumber, userAnswers, score } = gameState
+  const { gameState, setLoading, startGame, setSetupMode, getQueryString } = useGameContext()
+  const { loading, questions, gameOver, score } = gameState
   const { games_played } = sessionState
-  
-  
 
   const handleStart = () => {
       const queryString = getQueryString(sessionState.token)
-      
+      console.log({queryString})
       setLoading(true)
 
       fetchQuizQuestions(queryString)
       .then(response => {
         if(response.success){
           startGame(response.data)
-          setLoading(false)
         } else{
           console.log({response})
         }
       })
       .catch(error => console.log({error}))
 
+      setLoading(false)
   }
 
   return (

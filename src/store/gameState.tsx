@@ -19,7 +19,8 @@ export interface Game {
 export interface GameSetup {
   category:number | null
   difficulty:string | null
-  num_questions:number | null
+  num_questions:number | null,
+  type:string | null
 }
 
 export interface MCQuestion {
@@ -33,7 +34,7 @@ export interface MCQuestion {
 
 export interface UserMCAnswer {
   question:string
-  user_answer:string | undefined
+  submittedAnswer:string | undefined
   correct:boolean | undefined
   correctAnswer:string | undefined
 }
@@ -50,11 +51,17 @@ const setCurrentQuestion = (gameState: Game, question: MCQuestion) => {
 }
 
 const submitAnswer = (gameState: Game, answer: UserMCAnswer, question: MCQuestion ) => {
-  const correct = checkAnwser(answer.user_answer, question)
+  const correct = checkAnwser(answer.submittedAnswer, question)
   answer.correct = correct
+  answer.correctAnswer = question.correct_answer
+  let score = gameState.score
+  if(answer.correct){
+    score+=1
+  }
 
   return {
     ...gameState,
+    score,
     userAnswers: [...gameState.userAnswers, answer]
   }
 }
@@ -73,22 +80,38 @@ const startGame = (gameState:Game, questionSet: MCQuestion[]) => {
   return {
     ...gameState,
     score: 0,
-    questionNumber: 1,
+    questionNumber: 0,
     gameOver: false,
-    questions: questionSet
+    questions: questionSet,
+    userAnswers: []
+  }
+}
+
+const clearGameResults = (gameState:Game) => {
+  return {
+    ...gameState,
+    score: 0,
+    questionNumber: 0,
+    questions: [],
+    userAnswers: []
   }
 }
 
 const getQueryString = (gameState:Game, token: string | undefined) => {
   let queryString = baseQueryStr
 
-  const { category, num_questions, difficulty } = gameState.settings
-  
-  if(category) queryString = baseQueryStr + `&category=${category}`
-  if(num_questions) queryString = baseQueryStr + `&amount=${num_questions}`
-  if(difficulty) queryString = baseQueryStr + `&difficulty=${difficulty}`
+  const { category, num_questions, difficulty, type } = gameState.settings
+
+  if(category) queryString = queryString + `&category=${category}`
+  if(num_questions){
+    queryString = queryString + `&amount=${num_questions}`
+  } else {
+    queryString = queryString + `&amount=10`
+  }
+  if(difficulty) queryString = queryString + `&difficulty=${difficulty}`
+  if(type) queryString = queryString + `&type=${type}`
   // Token not required, but it prevents you from getting repeat questions in  the same session.
-  if(token) queryString = baseQueryStr + `&token=${token}`
+  if(token) queryString = queryString + `&token=${token}`
 
   return queryString
 }
@@ -122,6 +145,9 @@ export const useGameState = (initial:Game) => {
     startGame(questionSet:MCQuestion[]){
       gameStateSet(startGame(gameState, questionSet))
     },
+    clearGameResults(){
+      gameStateSet(clearGameResults(gameState))
+    },
     setCurrentQuestion(question:MCQuestion){
       gameStateSet(setCurrentQuestion(gameState, question))
     },
@@ -141,6 +167,7 @@ export const useGameState = (initial:Game) => {
       gameStateSet({ ...gameState, questions: newQuestions })
     },
     setGameOver(bool:boolean){
+      console.log({bool})
       gameStateSet({...gameState, gameOver: bool})
     }
   }

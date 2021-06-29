@@ -74,7 +74,7 @@ export const Wrapper = styled.div`
 
   
 
-  .start, .next, .change-settings-btn {
+  .start, .next, .change-settings-btn, .submit {
     cursor: pointer;
     box-shadow: 0px 5px 10px rgba(0,0,0, .25);
     border-radius: 10px;
@@ -84,7 +84,7 @@ export const Wrapper = styled.div`
     max-width: 400px;
   } 
 
-  .start, .next{
+  .start, .next, .submit{
     background: linear-gradient(180deg, #fff, #ffcc91);
     border: 2px solid #d38558;
   }
