@@ -13,21 +13,15 @@ const App = () => {
   const { sessionState, setToken } = useSessionContext()
   const { games_played, total_correct, total_questions, token } = sessionState
   const { gameState, getQueryString } = useGameContext()
-
-  
-  const [showGameSetup, setShowGameSetup] = useState<boolean>(true)
-  const [gameNumber, setGameNumber] = useState<number>(1)
-  const [categories, setCategories] = useState([] as CategoryObject[])
-  const [category, setCategory] = useState({} as CategoryObject)
-  const [difficulty, setDifficulty] = useState<string>("Various")
-  const [totalQuestions, setTotalQuestions] = useState<number>(10)
+  const { settingUp, settings } = gameState
 
   const queryString = getQueryString(token)
 
+  // Local
+  const [categories, setCategories] = useState<CategoryObject[]>([])
   
   const getNewToken = async() => {
     const newToken = await fetchSessionToken()
-    console.log({newToken})
     setToken(newToken.data?.token)
   }
 
@@ -88,26 +82,15 @@ const App = () => {
       <pre style={{color: 'white'}}>{JSON.stringify({gameState}, null, 2)}</pre>
       <Wrapper>
         <h1>Pub Quiz</h1>
-        {!showGameSetup && 
+        {!settingUp && 
         <ul className='info-list'>
-          <li><h3>Game:&nbsp;&nbsp; <span>{gameNumber}</span></h3></li>
-          <li><h3>Category:&nbsp;&nbsp; <span>{  category.name ? category.name : 'Various' }</span></h3></li>
-          <li><h3>Difficulty:&nbsp;&nbsp; <span>{ difficulty ? difficulty.toUpperCase() : 'Various' }</span></h3></li>
-          <li><h3>No. of Q's:&nbsp;&nbsp; <span>{ totalQuestions }</span></h3></li>
+          <li><h3>Game:&nbsp;&nbsp; <span>{games_played + 1}</span></h3></li>
+          <li><h3>Category:&nbsp;&nbsp; <span>{  settings.category ? settings.category : 'Various' }</span></h3></li>
+          <li><h3>Difficulty:&nbsp;&nbsp; <span>{ settings.difficulty ? settings.difficulty.toUpperCase() : 'Various' }</span></h3></li>
+          <li><h3>No. of Q's:&nbsp;&nbsp; <span>{ settings.num_questions }</span></h3></li>
         </ul>}
-        {gameState.settingUp && categories.length > 0 &&
-        <GameSetup
-        categories={categories}
-        />}
-        {!showGameSetup &&
-        <Game
-        queryString={queryString}
-        totalQuestions={totalQuestions}
-        setGameNumber={setGameNumber}
-        gameNumber={gameNumber}
-        setShowGameSetup={setShowGameSetup}
-        />}
-    
+        {settingUp && <GameSetup categories={categories} />}
+        {!settingUp && <Game />}
       </Wrapper>
     </>
   );

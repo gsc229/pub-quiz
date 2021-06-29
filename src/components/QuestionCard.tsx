@@ -1,41 +1,69 @@
-import React from 'react'
-// Types 
-import { AnswerObject } from '../components/Game'
+import { useState } from 'react'
+// Context
+import { useGameContext, useSessionContext } from '../store/store'
 // Styles 
 import { Wrapper, ButtonWrapper } from './QuestionCard.style'
-
-type Props = {
-  question: string
-  choices: string[]
-  callback: (e:React.MouseEvent<HTMLButtonElement>) => void
-  userAnswer: AnswerObject | undefined
-  questionNr: number
-  totalQuestions: number
-}
+// Types
+import { UserMCAnswer, MCQuestion } from '../store/gameState'
 
 
-const QuestionCard = ({ question, choices, callback, userAnswer, questionNr, totalQuestions }: Props) => {
+const QuestionCard = () => {
+  const { sessionState } = useSessionContext()
+  const { gameState, setNextQuestionNumber, submitAnswer } = useGameContext()
+  const { questions, questionNumber, userAnswers, score } = gameState
+  const [pendingAnswer, setPendingAnswer] = useState<UserMCAnswer>({
+    question: questions[questionNumber].question,
+    correct: undefined,
+    correctAnswer: undefined,
+    user_answer: undefined
+  } as UserMCAnswer);
 
-      return(
+
+  const handleChoiceClick = (choice:string) => {
+    setPendingAnswer({
+      ...pendingAnswer,
+      user_answer: choice
+    })
+  }
+
+  
+
+  return(
       <Wrapper>
         <p className="number">
-          Question: { questionNr } / { totalQuestions }
+          Question: { questionNumber } / { questions.length }
         </p>
-        <p dangerouslySetInnerHTML={{ __html: question }}/>
-        <div>
-          {choices.map(choice =>(
+        <p dangerouslySetInnerHTML={{ __html: questions[questionNumber].question }}/>
+        <div className="answer-choices">
+          {questions[questionNumber].choices.map(choice =>(
             <ButtonWrapper 
-            correct={ userAnswer?.correctAnswer === choice}
-            userClicked={ choice === userAnswer?.answer }
+            correct={ userAnswers.length === questionNumber && userAnswers[questionNumber].correct === true }
+            userClicked={ choice === pendingAnswer.user_answer }
             key={choice}>
-              <button disabled={userAnswer !== undefined} value={choice}  onClick={callback}>
+              <button 
+              disabled={userAnswers.length === questionNumber + 1} 
+              value={choice}  
+              onClick={() => handleChoiceClick(choice)}>
                 <span dangerouslySetInnerHTML={{ __html: choice}} />
               </button>
             </ButtonWrapper>
           ))}
         </div>
+        <div className='submit-next-container'>
+          <button
+          className="submit"
+          onClick={() => submitAnswer(pendingAnswer, questions[questionNumber])}>
+            Submit
+          </button>
+          <button
+          disabled={userAnswers.length - 1 !== questionNumber}
+          className="next"
+          onClick={() => setNextQuestionNumber}>
+            Next Question
+          </button>
+        </div>
       </Wrapper>
-      )
+  )
 }
 
 

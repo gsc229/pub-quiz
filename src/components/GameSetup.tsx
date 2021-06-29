@@ -1,6 +1,6 @@
-import { useGameContext, useSessionContext } from '../store/store'
+import { useGameContext } from '../store/store'
 // Types
-import { CategoryObject, fetchQuizQuestions }  from '../API'
+import { CategoryObject }  from '../API'
 // Styles 
 import { Wrapper } from './GameSetup.style'
 import { ButtonWrapper } from './QuestionCard.style'
@@ -13,21 +13,9 @@ const GameSetup = ({
   categories
 }:Props) => {
 
-  const { sessionState  } = useSessionContext()
-  const { gameState, setGameSettings, startGame, getQueryString } = useGameContext()
+  
+  const { gameState, setGameSettings, setSetupMode, setLoading } = useGameContext()
   const { category, difficulty, num_questions } = gameState.settings
-
-
-  const handleContinue = async() => {
-    const queryString = getQueryString(sessionState.token) 
-    const fetchNewQuestions = await fetchQuizQuestions(queryString)
-
-    if(fetchNewQuestions.success){
-      startGame(fetchNewQuestions.data)
-    } else {
-      alert("Something went wrong :(")
-    }
-  }
   
   return (
     <Wrapper>
@@ -78,10 +66,10 @@ const GameSetup = ({
           </select>
         </div>
         <ButtonWrapper
-        correct={true}
+        correct={true}/* true for styles only */
         userClicked={true}
         >
-          <button onClick={handleContinue}>
+          <button onClick={() => setSetupMode(false)}>
             Continue
           </button>
         </ButtonWrapper>

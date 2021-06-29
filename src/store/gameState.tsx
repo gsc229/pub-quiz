@@ -4,43 +4,52 @@ import { baseQueryStr } from '../API'
 
 
 export interface Game {
-  gameOver: boolean
-  settingUp: boolean
-  currentQuestion: MCQuestion | null
+  gameOver:boolean
+  settingUp:boolean
+  loading:boolean
+  gameError:string | null
+  currentQuestion:MCQuestion | null
   questionNumber:number
-  userAnswers: UserMCAnswer[]
-  questions: MCQuestion[]
-  score: number
-  settings: GameSetup
+  userAnswers:UserMCAnswer[]
+  questions:MCQuestion[]
+  score:number
+  settings:GameSetup
 }
 
 export interface GameSetup {
-  category: number | null
-  difficulty: string | null
-  num_questions: number | null
+  category:number | null
+  difficulty:string | null
+  num_questions:number | null
 }
 
 export interface MCQuestion {
-  category: string
-  correct_answer: string
-  difficulty: string
-  choices: string[]
-  question: string
-  type: string
+  category:string
+  correct_answer:string
+  difficulty:string
+  choices:string[]
+  question:string
+  type:string
 }
 
 export interface UserMCAnswer {
-  question: string
-  user_answer: string
-  correct: boolean
-  correctAnswer: string
+  question:string
+  user_answer:string | undefined
+  correct:boolean | undefined
+  correctAnswer:string | undefined
 }
 
-const checkAnwser = (userAnswer:string, question: MCQuestion) => {
+const checkAnwser = (userAnswer:string | undefined, question: MCQuestion) => {
   return userAnswer === question.correct_answer
 }
 
-const submitQuestion = (gameState: Game, answer: UserMCAnswer, question: MCQuestion ) => {
+const setCurrentQuestion = (gameState: Game, question: MCQuestion) => {
+  return{
+    ...gameState,
+    currentQuestion: question
+  }
+}
+
+const submitAnswer = (gameState: Game, answer: UserMCAnswer, question: MCQuestion ) => {
   const correct = checkAnwser(answer.user_answer, question)
   answer.correct = correct
 
@@ -49,8 +58,8 @@ const submitQuestion = (gameState: Game, answer: UserMCAnswer, question: MCQuest
     userAnswers: [...gameState.userAnswers, answer]
   }
 }
+
 const setGameSettings = (gameState: Game, key:string, value:number | string) => {
-  
   return {
     ...gameState,
     settings: {
@@ -84,7 +93,7 @@ const getQueryString = (gameState:Game, token: string | undefined) => {
   return queryString
 }
 
-const nextQuestion = (gameState:Game) => {
+const setNextQuestionNumber = (gameState:Game) => {
 
   const nextQNum = gameState.questionNumber + 1 < gameState.questions.length
    ? 
@@ -107,20 +116,32 @@ export const useGameState = (initial:Game) => {
     getQueryString(token:string | undefined){
       return getQueryString(gameState, token)
     },
+    setSetupMode(bool:boolean){
+      gameStateSet({...gameState, settingUp: bool})
+    },
     startGame(questionSet:MCQuestion[]){
       gameStateSet(startGame(gameState, questionSet))
     },
-    submitQuestion(answer:UserMCAnswer, question:MCQuestion){
-      gameStateSet(submitQuestion(gameState, answer, question))
+    setCurrentQuestion(question:MCQuestion){
+      gameStateSet(setCurrentQuestion(gameState, question))
+    },
+    submitAnswer(answer:UserMCAnswer, question:MCQuestion){
+      gameStateSet(submitAnswer(gameState, answer, question))
     },
     setGameSettings(key:string, value:string | number){
       gameStateSet(setGameSettings(gameState, key, value ))
     },
-    nextQuestion(){
-      gameStateSet(nextQuestion(gameState))
+    setNextQuestionNumber(){
+      gameStateSet(setNextQuestionNumber(gameState))
+    },
+    setLoading(bool:boolean){
+      gameStateSet({...gameState, loading: bool})
     },
     loadQuesions(newQuestions:MCQuestion[]){
       gameStateSet({ ...gameState, questions: newQuestions })
+    },
+    setGameOver(bool:boolean){
+      gameStateSet({...gameState, gameOver: bool})
     }
   }
 }

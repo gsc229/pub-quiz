@@ -1,49 +1,17 @@
-import { shuffleArray } from './utils'
 import { MCQuestion } from './store/gameState'
 
-export type Question = {
-  category: string
-  correct_answer: string
-  difficulty: string
-  incorrect_answers: string[]
-  question: string
-  type: string
-}
-
-export type QuestionState = Question & { choices: string[] }
-
-export enum Difficulty {
-  EASY = "easy",
-  MEDIUM = "medium",
-  HARD = "hard"
-}
 
 export const baseUrl = 'https://opentdb.com'
 export const baseQueryStr = 'https://opentdb.com/api.php?'
 
 /* FETCH QUESTIONS */
-export const fetchQuizQuestions = async(queryString:string):Promise<{success: boolean; data: QuestionState[]}> => {
+export const fetchQuizQuestions = async(queryString:string):Promise<{success: boolean; data: MCQuestion[]}> => {
   console.log({queryString})
   const data = await (await fetch(queryString)).json()
   console.log({data})
 
-  if(data.response_code === 3 || data.response_code === 4){
-    // refresh the token
-  }
-
-
-  if (data){
-
-    const shuffledData = data.results.map((question: Question) => (
-      {
-        ...question,
-        choices: shuffleArray([...question.incorrect_answers, question.correct_answer])
-      }
-    ))
-    
-    console.log({shuffledData})
-    return { success: true, data: shuffledData }
-
+  if (data.response_code === 0){
+    return { success: true, data: data.results }
   }
 
   return { success: false, data: [] }

@@ -24,6 +24,8 @@ export const useGameContext = () => React.useContext(GameContext)!
 const initialGameState = {
   gameOver: true,
   settingUp: true,
+  loading: false,
+  gameError: null,
   currentQuestion: null,
   questionNumber: 1,
   userAnswers: [],
