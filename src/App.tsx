@@ -1,4 +1,5 @@
 import {useState, useEffect} from 'react';
+import { useGameContext } from './store/store'
 // Components
 import GameSetup from './components/GameSetup';
 import Game from './components/Game';
@@ -9,6 +10,8 @@ import { GlobalStyle, Wrapper } from './App.style'
 
 const App = () => {
 
+  const { gameState, getQueryString } = useGameContext()
+
   const [token, setToken] = useState<string | undefined>("")
   const [showGameSetup, setShowGameSetup] = useState<boolean>(true)
   const [gameNumber, setGameNumber] = useState<number>(1)
@@ -17,7 +20,7 @@ const App = () => {
   const [difficulty, setDifficulty] = useState<string>("Various")
   const [totalQuestions, setTotalQuestions] = useState<number>(10)
 
-  const queryString = `https://opentdb.com/api.php?token=${token}&amount=${totalQuestions ? totalQuestions : ""}&type=multiple&difficulty=${difficulty ? difficulty : ""}&category=${category.id ? category.id : ""}`
+  const queryString = getQueryString(token)
 
   
   const getNewToken = async() => {
@@ -26,7 +29,7 @@ const App = () => {
     setToken(newToken.data?.token)
   }
 
-  const checkGoodToken = async(token:string) => {
+  const checkToken = async(token:string) => {
 
     const testResult = await(await fetch(`https://opentdb.com/api.php?amount=1&token=${token}`)).json()
 
@@ -43,9 +46,8 @@ const App = () => {
     const lsToken:string | null = localStorage.getItem('token')
     // Check for token in local storage first and if it's fresh:
     if(lsToken){
-      checkGoodToken(lsToken)
+      checkToken(lsToken)
       .then(tokenIsGood => {
-        console.log({tokenIsGood})
         if(tokenIsGood){
           setToken(lsToken)
         } else {
@@ -80,6 +82,7 @@ const App = () => {
   return (
     <>
       <GlobalStyle />
+      <pre style={{color: 'white'}}>{JSON.stringify({gameState}, null, 2)}</pre>
       <Wrapper>
         <h1>Pub Quiz</h1>
         {!showGameSetup && 
@@ -89,17 +92,9 @@ const App = () => {
           <li><h3>Difficulty:&nbsp;&nbsp; <span>{ difficulty ? difficulty.toUpperCase() : 'Various' }</span></h3></li>
           <li><h3>No. of Q's:&nbsp;&nbsp; <span>{ totalQuestions }</span></h3></li>
         </ul>}
-        {showGameSetup && categories.length > 0 &&
+        {gameState.settingUp && categories.length > 0 &&
         <GameSetup
         categories={categories}
-        category={category}
-        difficulty={difficulty}
-        totalQuestions={totalQuestions}
-        setShowGameSetup={setShowGameSetup}
-        setCategory={setCategory}
-        setGameNumber={setGameNumber}
-        setDifficulty={setDifficulty}
-        setTotalQuestions={setTotalQuestions}
         />}
         {!showGameSetup &&
         <Game
@@ -109,6 +104,7 @@ const App = () => {
         gameNumber={gameNumber}
         setShowGameSetup={setShowGameSetup}
         />}
+    
       </Wrapper>
     </>
   );

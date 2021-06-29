@@ -1,5 +1,5 @@
 import React from 'react'
-// Bootstrap
+import { useGameContext } from '../store/store'
 // Types
 import { CategoryObject }  from '../API'
 // Styles 
@@ -7,80 +7,57 @@ import { Wrapper } from './GameSetup.style'
 import { ButtonWrapper } from './QuestionCard.style'
 
 type Props = {
-  setShowGameSetup: React.Dispatch<React.SetStateAction<boolean>>
-  setCategory: React.Dispatch<React.SetStateAction<CategoryObject>>
-  setDifficulty: React.Dispatch<React.SetStateAction<string>>
-  difficulty:string
-  setTotalQuestions: React.Dispatch<React.SetStateAction<number>>
-  totalQuestions: number
-  setGameNumber:React.Dispatch<React.SetStateAction<number>>
   categories: CategoryObject[]
-  category: CategoryObject
 }
 
 const GameSetup = ({ 
-  setShowGameSetup, 
-  setCategory, 
-  setDifficulty, 
-  setTotalQuestions, 
-  setGameNumber, 
   categories,
-  category,
-  difficulty,
-  totalQuestions
 
 }:Props) => {
 
+  const { gameState, setGameSettings, startGame } = useGameContext()
+  const { category, difficulty, num_questions } = gameState.settings
 
   const selectDifficulty = (e:React.ChangeEvent<HTMLSelectElement>) => {
-    setDifficulty(e.target.value)
+    
   }
 
-  const handleContinue = () => {
-
-    if(!category.name) {
-      setCategory({ ...category, name: 'Various' })
-    }
-
-    if(!difficulty || difficulty === 'Various') {
-      setDifficulty('')
-    }
-
-    setShowGameSetup(false)
+  const handleContinue = async() => {
     
   }
 
   const handleCategorySelect = (e:React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedCategory = categories.find(category => category.name === e.currentTarget.value) || {} as CategoryObject
-    setCategory(selectedCategory)
+
   }
-  console.log({ category }, typeof category, category.name)
+  
   return (
     <Wrapper>
       <h2>Game Setup</h2>
       <div className='container  setup-container'>
         <div className='row'>
-          <select 
-          value={category.name}
+          <select
+          name="category"
+          value={category ? category : ""}
           className="select" 
-          onChange={handleCategorySelect}>
+          onChange={(e) => setGameSettings(e.target.name, e.target.value)}>
             <option value="" >
               Select Category
             </option>
             {categories.length >0 && categories.map(category => (
               <option
               key={category.id} 
-              value={category.name}>
+              value={category.id}>
                 {category.name}
               </option>
             ))}
           </select>
         </div>
         <div className='row'>
-          <select 
-          value={difficulty}
+          <select
+          name="difficulty"
+          value={difficulty ? difficulty : ""}
           className="select-difficulty" 
-          onChange={selectDifficulty}>
+          onChange={(e) => setGameSettings(e.target.name, e.target.value)}>
             <option value="" >
               Select Difficulty
             </option>
@@ -91,9 +68,10 @@ const GameSetup = ({
         </div>
         <div className='row'>
         <select
-        value={totalQuestions}
+        name="num_questions"
+        value={num_questions ? num_questions : ""}
         className="select" 
-        onChange={(e:React.ChangeEvent<HTMLSelectElement>) => setTotalQuestions(parseInt(e.currentTarget.value))}>
+        onChange={(e) => setGameSettings(e.target.name, e.target.value)}>
             <option value={10} >
               # of Q's
             </option>

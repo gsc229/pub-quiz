@@ -28,6 +28,7 @@ export const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: rgba(0,0,0, .25);
+  margin-top: 20px;
   padding: 0 20px 20px 20px;
   height: 100%;
   > p {

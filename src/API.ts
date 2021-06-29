@@ -1,4 +1,5 @@
 import { shuffleArray } from './utils'
+import { MCQuestion } from './store/gameState'
 
 export type Question = {
   category: string
@@ -16,6 +17,9 @@ export enum Difficulty {
   MEDIUM = "medium",
   HARD = "hard"
 }
+
+export const baseUrl = 'https://opentdb.com'
+export const baseQueryStr = 'https://opentdb.com/api.php?'
 
 /* FETCH QUESTIONS */
 export const fetchQuizQuestions = async(queryString:string):Promise<{success: boolean; data: QuestionState[]}> => {
@@ -47,11 +51,11 @@ export const fetchQuizQuestions = async(queryString:string):Promise<{success: bo
 }
 
 /* FETCH TOKEN */
-export const fetchSessionToken = async():Promise<{ success:boolean, data?:{ response_code: number, response_message: string, token: string } }> => {
+export const fetchSessionToken = async():Promise<{ success:boolean, data?:{ response_code:number, response_message:string, token:string } }> => {
 
   const endpoint = 'https://opentdb.com/api_token.php?command=request'
 
-  const data: { response_code: number, response_message: string, token: string } = await (await fetch(endpoint)).json()
+  const data: { response_code:number, response_message:string, token:string } = await (await fetch(endpoint)).json()
 
   localStorage.setItem('token', data.token)
 

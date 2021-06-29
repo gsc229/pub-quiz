@@ -1,4 +1,6 @@
 import React, {useState} from 'react'
+// Context
+import { useGameContext } from '../store/store'
 import { fetchQuizQuestions } from '../API'
 // Components
 import QuestionCard from './QuestionCard';
@@ -22,6 +24,12 @@ type Props = {
 }
 
 const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions, gameNumber }:Props ) => {
+
+
+  const { gameState } = useGameContext()
+
+  console.log({ gameState })
+
   console.log({totalQuestions, gameNumber})
   const [loading, setLoading] = useState<boolean>(false);
   const [questions, setQuestions] = useState<QuestionState[] | []>([]);
@@ -86,6 +94,7 @@ const Game = ( { setGameNumber, setShowGameSetup, queryString, totalQuestions, g
 
   return (
     <div className='game-container'>
+      <pre style={{color: 'white'}}>{JSON.stringify({gameState}, null, 2)}</pre>
       {(gameOver && number === 0) &&
       <div className='start-edit-btns'>
         <button 
